@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, SafeAreaView, StatusBar } from 'react-native';
 import styled, {ThemeProvider} from "styled-components/native";
 import {theme} from "./theme";
+import Input from './components/input'
 
 const Container = styled.SafeAreaView`
   flex: 1;
@@ -23,11 +24,12 @@ export default function App() {
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                <Title>To Do List</Title>
                 <StatusBar
                     barStyle="light-content"
                     backgroundColor={theme.background}
                 />
+                <Title>To Do List</Title>
+                <Input placeholder="+ Add a Task"/>
             </Container>
         </ThemeProvider>
     );
