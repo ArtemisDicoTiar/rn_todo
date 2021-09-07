@@ -5,6 +5,8 @@ import {theme} from "./theme";
 import Input from './components/input'
 import IconButton from "./components/IconButton";
 import {icons} from "./icons";
+import Task from "./components/Task";
+import {Dimensions} from "react-native";
 
 const Container = styled.SafeAreaView`
   flex: 1;
@@ -22,12 +24,38 @@ const Title = styled.Text`
   padding: 0 20px;
 `
 
+const List = styled.ScrollView`
+  flex: 1;
+  width: ${({width}) => width-40}px;
+`
+
 export default function App() {
-    const [newTask, setNewTask] = useState('');
+    const width = Dimensions.get('window').width;
+
+    const data = {
+        '1': {id: '1', text: 'React Native', completed: false},
+        '2': {id: '2', text: 'React', completed: false},
+        '3': {id: '3', text: 'Native', completed: false},
+
+    }
+
+    const [tasks, setTasks] = useState(data)
+    const [newTask, setNewTask] = useState('')
 
     const addTask = () => {
-        alert(newTask)
+        if (newTask.length < 1) return
+        const ID = Date.now().toString();
+        const newTaskObject = {
+            [ID]: {id: ID, text: newTask, completed: false},
+        }
         setNewTask('')
+        setTasks({...tasks, ...newTaskObject})
+    }
+
+    const deleteTask = (id) => {
+        const currentTasks = Object.assign({}, tasks);
+        delete currentTasks[id];
+        setTasks(currentTasks);
     }
 
     return (
@@ -43,11 +71,16 @@ export default function App() {
                        onChangeText={text => setNewTask(text)}
                        onSubmitEditing={addTask}
                 />
-                <IconButton icon={icons.check} onPress={() => alert('check')}/>
-                <IconButton icon={icons.uncheck} onPress={() => alert('uncheck')}/>
-                <IconButton icon={icons.edit} onPress={() => alert('edit')}/>
-                <IconButton icon={icons.delete} onPress={() => alert('delete')}/>
 
+                <List width={width}>
+                    {Object.values(tasks)
+                        .reverse()
+                        .map(item =>
+                            (<Task key={item.id}
+                                   item={item}
+                                   deleteTask={deleteTask}/>))}
+
+                </List>
             </Container>
         </ThemeProvider>
     );
