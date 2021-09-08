@@ -16,7 +16,7 @@ const StyledInput = styled.TextInput.attrs(({theme}) => ({
   color: ${({theme}) => theme.text};
 `
 
-const Input = ({placeholder, value, onChangeText, onSubmitEditing}) => {
+const Input = ({placeholder, value, onChangeText, onSubmitEditing, onBlur}) => {
     // const width = Dimensions.get('window').width;
     const width = useWindowDimensions().width;
     return <StyledInput width={width}
@@ -28,6 +28,7 @@ const Input = ({placeholder, value, onChangeText, onSubmitEditing}) => {
                         value={value}
                         onChangeText={onChangeText}
                         onSubmitEditing={onSubmitEditing}
+                        onBlur={onBlur}
     />
 }
 

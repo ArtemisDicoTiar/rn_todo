@@ -7,6 +7,8 @@ import IconButton from "./components/IconButton";
 import {icons} from "./icons";
 import Task from "./components/Task";
 import {Dimensions} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AppLoading from 'expo-app-loading';
 
 const Container = styled.SafeAreaView`
   flex: 1;
@@ -39,6 +41,16 @@ export default function App() {
 
     }
 
+    const storeData = async tasks => {
+        await AsyncStorage.setItem('tasks', JSON.stringify(tasks))
+        setTasks(tasks);
+    }
+
+    const getData = async () => {
+        const loadedData = await AsyncStorage.getItem('tasks');
+        setTasks(JSON.parse(loadedData || '{}'))
+    }
+
     const [tasks, setTasks] = useState(data)
     const [newTask, setNewTask] = useState('')
 
@@ -49,16 +61,30 @@ export default function App() {
             [ID]: {id: ID, text: newTask, completed: false},
         }
         setNewTask('')
-        setTasks({...tasks, ...newTaskObject})
+        storeData({...tasks, ...newTaskObject});
     }
 
     const deleteTask = (id) => {
         const currentTasks = Object.assign({}, tasks);
         delete currentTasks[id];
-        setTasks(currentTasks);
+        storeData(currentTasks);
     }
 
-    return (
+    const toggleTask = (id) => {
+        const currentTasks = Object.assign({}, tasks);
+        currentTasks[id]['completed'] = !currentTasks[id]['completed'];
+        storeData(currentTasks);
+    }
+
+    const updateTask = (item) => {
+        const currentTasks = Object.assign({}, tasks);
+        currentTasks[item.id]['text'] = item.text
+        storeData(currentTasks);
+    }
+
+    const [isReady, setIsReady] = useState(false)
+
+    return isReady ? (
         <ThemeProvider theme={theme}>
             <Container>
                 <StatusBar
@@ -70,6 +96,7 @@ export default function App() {
                        value={newTask}
                        onChangeText={text => setNewTask(text)}
                        onSubmitEditing={addTask}
+                       onBlur={() => setNewTask('')}
                 />
 
                 <List width={width}>
@@ -78,11 +105,14 @@ export default function App() {
                         .map(item =>
                             (<Task key={item.id}
                                    item={item}
-                                   deleteTask={deleteTask}/>))}
+                                   deleteTask={deleteTask}
+                                   toggleTask={toggleTask}
+                                   updateTask={updateTask}
+                            />))}
 
                 </List>
             </Container>
         </ThemeProvider>
-    );
+    ) : <AppLoading startAsync={getData} onFinish={() => setIsReady(true)} onError={() => {}}/>;
 }
 
